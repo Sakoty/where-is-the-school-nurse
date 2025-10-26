@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Where is the school nurse - スタッフ</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background-color: #f9fafb;
+      margin: 0;
+      padding: 20px;
+      text-align: center;
+    }
+    h1 { margin-bottom: 20px; }
+    input {
+      padding: 10px;
+      font-size: 16px;
+      margin-bottom: 20px;
+      width: 80%;
+      max-width: 300px;
+    }
+    button {
+      display: block;
+      width: 80%;
+      max-width: 300px;
+      margin: 10px auto;
+      padding: 15px;
+      font-size: 18px;
+      border: none;
+      border-radius: 10px;
+      color: white;
+      background-color: #3b82f6;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+    button:hover { background-color: #2563eb; }
+    #status { margin-top: 20px; font-size: 16px; color: #333; }
+  </style>
+</head>
+<body>
+  <h1>Where is the school nurse</h1>
+  <p>自分の名前を入力して現在地を選択してください。</p>
+  <input type="text" id="nameInput" placeholder="例：田中先生">
+  
+  <button data-location="保健室">🏥 保健室</button>
+  <button data-location="職員室">🧑‍🏫 職員室</button>
+  <button data-location="体育館">🏃 体育館</button>
+  <button data-location="校外">🚶 校外</button>
+  <button data-location="校内">🏫 校内</button>
+
+  <div id="status">まだ送信されていません</div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
+    import { getFirestore, doc, setDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyCHUYRRQHhAf3ldYf9LwBn_B0V302weHpg",
+      authDomain: "where-is-the-school-nurse.firebaseapp.com",
+      projectId: "where-is-the-school-nurse",
+      storageBucket: "where-is-the-school-nurse.firebasestorage.app",
+      messagingSenderId: "46861098866",
+      appId: "1:46861098866:web:148d8be483ac9c046087eb",
+      measurementId: "G-0PXV1HVNQ5"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    const nameInput = document.getElementById("nameInput");
+    const status = document.getElementById("status");
+    const buttons = document.querySelectorAll("button[data-location]");
+
+    buttons.forEach(button => {
+      button.addEventListener("click", async () => {
+        const name = nameInput.value.trim();
+        if (!name) {
+          alert("名前を入力してください。");
+          return;
+        }
+
+        const location = button.dataset.location;
+        const ref = doc(db, "staffLocations", name);
+        await setDoc(ref, {
+          name,
+          location,
+          updatedAt: serverTimestamp()
+        });
+
+        status.textContent = `📍 ${location} を共有しました`;
+      });
+    });
+  </script>
+</body>
+</html>

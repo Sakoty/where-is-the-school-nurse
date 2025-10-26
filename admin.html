@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Where is the school nurse - 管理者</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background-color: #f9fafb;
+      padding: 20px;
+    }
+    h1 { text-align: center; margin-bottom: 20px; }
+    table {
+      width: 100%;
+      max-width: 500px;
+      margin: 0 auto;
+      border-collapse: collapse;
+      background: white;
+      border-radius: 10px;
+      overflow: hidden;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    th, td {
+      padding: 12px;
+      text-align: left;
+      border-bottom: 1px solid #eee;
+    }
+    th {
+      background-color: #3b82f6;
+      color: white;
+    }
+    tr:last-child td {
+      border-bottom: none;
+    }
+  </style>
+</head>
+<body>
+  <h1>Where is the school nurse</h1>
+  <table>
+    <thead>
+      <tr>
+        <th>名前</th>
+        <th>現在地</th>
+        <th>更新時刻</th>
+      </tr>
+    </thead>
+    <tbody id="staffList"></tbody>
+  </table>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
+    import { getFirestore, collection, onSnapshot, query, orderBy } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyCHUYRRQHhAf3ldYf9LwBn_B0V302weHpg",
+      authDomain: "where-is-the-school-nurse.firebaseapp.com",
+      projectId: "where-is-the-school-nurse",
+      storageBucket: "where-is-the-school-nurse.firebasestorage.app",
+      messagingSenderId: "46861098866",
+      appId: "1:46861098866:web:148d8be483ac9c046087eb",
+      measurementId: "G-0PXV1HVNQ5"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    const staffList = document.getElementById("staffList");
+
+    const q = query(collection(db, "staffLocations"), orderBy("updatedAt", "desc"));
+    onSnapshot(q, (snapshot) => {
+      staffList.innerHTML = "";
+      snapshot.forEach((doc) => {
+        const data = doc.data();
+        const updatedAt = data.updatedAt?.toDate().toLocaleTimeString("ja-JP", {
+          hour: '2-digit', minute: '2-digit'
+        }) || "";
+        const row = `
+          <tr>
+            <td>${data.name}</td>
+            <td>${data.location}</td>
+            <td>${updatedAt}</td>
+          </tr>`;
+        staffList.innerHTML += row;
+      });
+    });
+  </script>
+</body>
+</html>
